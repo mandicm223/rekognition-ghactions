@@ -1,9 +1,14 @@
 
-from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
-from aws_cdk import aws_ec2 as _ec2
-from aws_cdk import aws_iam as _iam
-from aws_cdk import aws_lambda as _lambda
-from aws_cdk import aws_logs as _log
+from aws_cdk import (
+    CfnOutput, Duration, RemovalPolicy, Stack,
+    aws_ec2 as _ec2,
+    aws_iam as _iam,
+    aws_lambda as _lambda,
+    aws_logs as log,
+    aws_s3 as s3,
+    aws_s3_notifications as s3_notify,
+)
+
 from constructs import Construct
 from dotenv import dotenv_values
 
@@ -22,7 +27,7 @@ class BussinesLogicStack(Stack):
 
         # GET Method Lambda
 
-        lambda_func_get = _lambda.Function(self, 
+        lambda_func = _lambda.Function(self, 
                                            'lambda_api_get_func',
                                            runtime=_lambda.Runtime.PYTHON_3_9,
                                            function_name=f"{environment}-{first_name_last_name}-recognition",
@@ -32,8 +37,24 @@ class BussinesLogicStack(Stack):
 
         # GET Method Lambda LG
 
-        lambda_lg_get = _log.LogGroup(self, 
+        lambda_lg = log.LogGroup(self, 
                                       "lambda_mm_loggroup_get",
-                                      log_group_name=f"/aws/lambda/{lambda_func_get.function_name}",
+                                      log_group_name=f"/aws/lambda/{lambda_func.function_name}",
                                       removal_policy=RemovalPolicy.DESTROY,
                                 )
+        
+        # S3 Bucket
+
+        bucket = s3.Bucket(self, 'rekognition-bucket')
+
+        
+        # Create trigger for Lambda function using suffix
+
+        notification = s3_notify.LambdaDestination(lambda_func)
+        notification.bind(self, bucket)
+
+
+        # Add Create Event only for .jpg files
+        
+        bucket.add_object_created_notification(
+           notification, s3.NotificationKeyFilter(suffix='.jpg'))

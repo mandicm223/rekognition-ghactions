@@ -16,7 +16,7 @@ def detect(bucket,name):
     client = boto3.client("rekognition")
     
     response = client.detect_labels(
-            image = {"S3Object": {"Bucket": bucket, "Name": name}}
+            Image = {"S3Object": {"Bucket": bucket, "Name": name}}
         )
     
     return response
