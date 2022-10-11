@@ -26,8 +26,8 @@ class BussinesLogicStack(Stack):
                                            'lambda_api_get_func',
                                            runtime=_lambda.Runtime.PYTHON_3_9,
                                            function_name=f"{environment}-{first_name_last_name}-recognition",
-                                           code=_lambda.AssetCode("./aws_final_project/Functions/LambdaGet"),
-                                           handler='lambda_dynamo.lambda_handler',
+                                           code=_lambda.AssetCode("./Functions"),
+                                           handler='lambda_rekognition.lambda_handler'
                                     )
 
         # GET Method Lambda LG
