@@ -1,26 +1,39 @@
+
+from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
+from aws_cdk import aws_ec2 as _ec2
+from aws_cdk import aws_iam as _iam
+from aws_cdk import aws_lambda as _lambda
+from aws_cdk import aws_logs as _log
 from constructs import Construct
-from aws_cdk import (
-    Duration,
-    Stack,
-    aws_iam as iam,
-    aws_sqs as sqs,
-    aws_sns as sns,
-    aws_sns_subscriptions as subs,
-)
+from dotenv import dotenv_values
 
+class BussinesLogicStack(Stack):
 
-class CdkAppStack(Stack):
-
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str,**kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        queue = sqs.Queue(
-            self, "CdkAppQueue",
-            visibility_timeout=Duration.seconds(300),
-        )
 
-        topic = sns.Topic(
-            self, "CdkAppTopic"
-        )
+        config = dotenv_values(".env")
+        # Parameters from .env
 
-        topic.add_subscription(subs.SqsSubscription(queue))
+        environment = config['ENV']
+        first_name_last_name = config['FIRST_LAST_NAME']
+
+
+        # GET Method Lambda
+
+        lambda_func_get = _lambda.Function(self, 
+                                           'lambda_api_get_func',
+                                           runtime=_lambda.Runtime.PYTHON_3_9,
+                                           function_name=f"{environment}-{first_name_last_name}-recognition",
+                                           code=_lambda.AssetCode("./aws_final_project/Functions/LambdaGet"),
+                                           handler='lambda_dynamo.lambda_handler',
+                                    )
+
+        # GET Method Lambda LG
+
+        lambda_lg_get = _log.LogGroup(self, 
+                                      "lambda_mm_loggroup_get",
+                                      log_group_name=f"/aws/lambda/{lambda_func_get.function_name}",
+                                      removal_policy=RemovalPolicy.DESTROY,
+                                )
