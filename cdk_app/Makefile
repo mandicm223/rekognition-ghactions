@@ -9,6 +9,6 @@ format:
 	black *.py
 
 lint:
-	pylint --disable=R,C,W0611,W0612 cdk_app/cdk_app_stack.py
+	pylint --disable=R,C,W0611,W0612 stacks/cdk_app_stack.py
 
 all: install lint test
