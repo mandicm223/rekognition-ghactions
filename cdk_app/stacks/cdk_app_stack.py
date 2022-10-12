@@ -2,7 +2,7 @@
 from aws_cdk import (
     CfnOutput, Duration, RemovalPolicy, Stack,
     aws_ec2 as _ec2,
-    aws_iam as _iam,
+    aws_iam as iam,
     aws_lambda as _lambda,
     aws_logs as log,
     aws_s3 as s3,
@@ -43,6 +43,15 @@ class BussinesLogicStack(Stack):
                                       removal_policy=RemovalPolicy.DESTROY,
                                 )
         
+        lambda_permission = iam.PolicyStatement(
+            actions=['rekognition:*', 's3:*'],
+            resources=['*']
+        )
+
+        lambda_func.role.attach_inline_policy(
+            iam.Policy(self, 'rekognition-access', statements=[lambda_permission])
+        )
+
         # S3 Bucket
 
         bucket = s3.Bucket(self, 'rekognition-bucket')

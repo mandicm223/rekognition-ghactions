@@ -1,6 +1,6 @@
 import aws_cdk as core
 import aws_cdk.assertions as assertions
-from cdk_app.cdk_app_stack import CdkAppStack
+from stacks.cdk_app_stack import CdkAppStack
 
 
 def test_sqs_queue_created():
